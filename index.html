@@ -284,19 +284,43 @@
 
         // --- Lógica de Propagação de Rótulos Ponderada (Weighted LPA) ---
 
+        // --- Lógica de Propagação de Rótulos Ponderada (Weighted LPA) ---
+        // ATUALIZAÇÃO: A função initializeLabels foi modificada para garantir
+        // que o número de rótulos únicos iniciais seja exatamente 'numLabels',
+        // resultando em uma maior variedade de cores na propagação.
+
         function initializeLabels(nodes) {
-            const numLabels = Math.max(2, Math.floor(nodes.length * (Math.random() * 0.02 + 0.03))); // 3% a 5%
+            // 1. Determina quantos rótulos únicos teremos (entre 3% e 5% dos nós).
+            const numLabels = Math.max(2, Math.floor(nodes.length * (Math.random() * 0.02 + 0.03)));
+
+            // 2. Cria uma lista de rótulos únicos para serem distribuídos (ex: [0, 1, 2, 3]).
+            let labelsToAssign = Array.from({ length: numLabels }, (_, i) => i);
+
+            // 3. Embaralha os rótulos para manter a aleatoriedade na atribuição.
+            labelsToAssign.sort(() => Math.random() - 0.5);
+
+            // 4. Escolhe 'numLabels' nós aleatórios e únicos para receber os rótulos.
             const labeledIndices = new Set();
-            while(labeledIndices.size < numLabels) {
+            while (labeledIndices.size < numLabels && labeledIndices.size < nodes.length) {
                 labeledIndices.add(Math.floor(Math.random() * nodes.length));
             }
-            labeledIndices.forEach(i => {
-                nodes[i].label = Math.floor(Math.random() * numLabels);
+
+            // 5. Atribui um rótulo ÚNICO da nossa lista para cada nó escolhido.
+            const indicesArray = Array.from(labeledIndices);
+            indicesArray.forEach((nodeIndex, i) => {
+                // Pega o próximo rótulo disponível da lista embaralhada.
+                // O operador de módulo (%) é uma segurança para não estourar o array.
+                const label = labelsToAssign[i % labelsToAssign.length];
+                if (label !== undefined) {
+                    nodes[nodeIndex].label = label;
+                }
             });
+
+            // A checagem de segurança, que já existia, continua útil para casos extremos.
             const uniqueLabels = [...new Set(nodes.filter(n => n.label !== null).map(n => n.label))];
             if (uniqueLabels.length < 2 && nodes.length > 1) {
-                nodes.forEach(n => n.label = null);
-                initializeLabels(nodes);
+                nodes.forEach(n => n.label = null); // Limpa para a recursão
+                initializeLabels(nodes); // Tenta novamente se algo falhar
             }
         }
 
