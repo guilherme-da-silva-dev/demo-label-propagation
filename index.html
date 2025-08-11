@@ -291,7 +291,7 @@
 
         function initializeLabels(nodes) {
             // 1. Determina quantos rótulos únicos teremos (entre 3% e 5% dos nós).
-            const numLabels = Math.max(2, Math.floor(nodes.length * (Math.random() * 0.02 + 0.03)));
+            const numLabels = Math.max(2, Math.floor(nodes.length * (Math.random() * 0.05 + 0.08)));
 
             // 2. Cria uma lista de rótulos únicos para serem distribuídos (ex: [0, 1, 2, 3]).
             let labelsToAssign = Array.from({ length: numLabels }, (_, i) => i);
